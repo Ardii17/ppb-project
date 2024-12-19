@@ -89,11 +89,11 @@ class ClassController {
   async updateClass(req, res) {
     try {
       const { id } = req.params;
-      const { nama_class, deskripsi, hari } = req.body;
+      const { nama_class, deskripsi, hari, teacher, time } = req.body;
 
       const [result] = await pool.execute(
-        "UPDATE class SET nama_class = ?, deskripsi = ?, hari = ? WHERE id = ?",
-        [nama_class, deskripsi, hari, id]
+        "UPDATE class SET nama_class = ?, deskripsi = ?, hari = ?, teacher = ?, time = ? WHERE id = ?",
+        [nama_class, deskripsi, hari, teacher, time, id]
       );
 
       if (result.affectedRows === 0) {
