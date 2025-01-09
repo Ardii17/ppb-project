@@ -6,9 +6,13 @@ class ClassController {
     try {
       const { nama_class, deskripsi, hari, teacher, time } = req.body;
 
+      // const [result] = await pool.execute(
+      //   "INSERT INTO class (nama_class, deskripsi, hari, teacher, time, created_at) VALUES (?, ?, ?, ?, ?, NOW())",
+      //   [nama_class, deskripsi, hari, teacher, time]
+      // );
+
       const [result] = await pool.execute(
-        "INSERT INTO class (nama_class, deskripsi, hari, teacher, time, created_at) VALUES (?, ?, ?, ?, ?, NOW())",
-        [nama_class, deskripsi, hari, teacher, time]
+        "INSERT INTO class (nama_class, deskripsi, hari, teacher, time, created_at) VALUES ('Kalkulus', 'Kalkulus bagian akhir', 'Senin', 'Bu Astrid', '07:00:00', NOW())"
       );
 
       res.status(201).json({
