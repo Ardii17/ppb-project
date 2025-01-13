@@ -43,8 +43,6 @@ app.get('/health', (req, res) => {
 
 // Routes
 app.use("/api", classRoutes);
-app.use("/api/assignments", assignmentRoutes);
-app.use("/api/materi", materiRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -61,17 +59,6 @@ app.use((err, req, res, next) => {
 });
 
 // Server initialization
-const server = app.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server berjalan di port ${PORT}`);
 });
-
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
-    process.exit(0);
-  });
-});
-
-module.exports = app; // Untuk testing purposes
