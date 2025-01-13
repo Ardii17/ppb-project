@@ -2,80 +2,26 @@ const pool = require("../config/database");
 
 class ClassController {
   // Create a new class
+  
+  // Create a new class
   async createClass(req, res) {
     try {
       const { nama_class, deskripsi, hari, teacher, time } = req.body;
 
-      // Validate required fields
-      if (!nama_class || !hari || !teacher || !time) {
-        return res.status(400).json({
-          message: "Missing required fields",
-          required: ["nama_class", "hari", "teacher", "time"]
-        });
-      }
-
-      // Validate time format (HH:mm:ss)
-      const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/;
-      if (!timeRegex.test(time)) {
-        return res.status(400).json({
-          message: "Invalid time format. Please use HH:mm:ss format"
-        });
-      }
-
-      // Validate day
-      const validDays = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-      if (!validDays.includes(hari)) {
-        return res.status(400).json({
-          message: "Invalid day. Please use one of: " + validDays.join(', ')
-        });
-      }
-
-      // Sanitize and trim input
-      const sanitizedData = {
-        nama_class: nama_class.trim(),
-        deskripsi: deskripsi ? deskripsi.trim() : null,
-        hari: hari.trim(),
-        teacher: teacher.trim(),
-        time: time.trim()
-      };
-
       const [result] = await pool.execute(
-        `INSERT INTO class (
-          nama_class, 
-          deskripsi, 
-          hari, 
-          teacher, 
-          time, 
-          created_at
-        ) VALUES (?, ?, ?, ?, ?, NOW())`,
-        [
-          sanitizedData.nama_class,
-          sanitizedData.deskripsi,
-          sanitizedData.hari,
-          sanitizedData.teacher,
-          sanitizedData.time
-        ]
+        "INSERT INTO class (nama_class, deskripsi, hari, teacher, time, created_at) VALUES (?, ?, ?, ?, ?, NOW())",
+        [nama_class, deskripsi, hari, teacher, time]
       );
 
       res.status(201).json({
         message: "Class created successfully",
         id: result.insertId,
-        data: sanitizedData
       });
     } catch (error) {
       console.error("Error creating class:", error);
-      
-      // Handle specific database errors
-      if (error.code === 'ER_DUP_ENTRY') {
-        return res.status(409).json({
-          message: "Class with this name already exists",
-          error: error.message
-        });
-      }
-
       res.status(500).json({
         message: "Failed to create class",
-        error: error.message
+        error: error.message,
       });
     }
   }
