@@ -15,7 +15,7 @@ class ClassController {
 
       const [result] = await pool.execute(
         "INSERT INTO class (nama_class, deskripsi, hari, teacher, time, created_at) VALUES (?, ?, ?, ?, ?, NOW())",
-        ["Senin", "Senin", "Senin", "Senin", "10:00:00"]
+        [nama_class, deskripsi, hari, teacher, time]
       );
 
       res.status(201).json({
