@@ -6,24 +6,76 @@ class ClassController {
     try {
       const { nama_class, deskripsi, hari, teacher, time } = req.body;
 
-      const [result] = await pool.execute(
-        "INSERT INTO class (nama_class, deskripsi, hari, teacher, time, created_at) VALUES (?, ?, ?, ?, ?, NOW())",
-        [nama_class ?? "Matematika Diskrit", deskripsi ?? "Matematika Diskrit akan dilaksanakan pada hari Jumat", hari ?? "Jumat", teacher ?? "Pak Ahmad Suryan", time ?? "10:00:00"]
-      );
+      // Validate required fields
+      if (!nama_class || !hari || !teacher || !time) {
+        return res.status(400).json({
+          message: "Missing required fields",
+          required: ["nama_class", "hari", "teacher", "time"]
+        });
+      }
 
-      // const [result] = await pool.execute(
-      //   "INSERT INTO class (nama_class, deskripsi, hari, teacher, time, created_at) VALUES ('Kalkulus', 'Kalkulus bagian akhir', 'Senin', 'Bu Astrid', '07:00:00', NOW())"
-      // );
+      // Validate time format (HH:mm:ss)
+      const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/;
+      if (!timeRegex.test(time)) {
+        return res.status(400).json({
+          message: "Invalid time format. Please use HH:mm:ss format"
+        });
+      }
+
+      // Validate day
+      const validDays = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+      if (!validDays.includes(hari)) {
+        return res.status(400).json({
+          message: "Invalid day. Please use one of: " + validDays.join(', ')
+        });
+      }
+
+      // Sanitize and trim input
+      const sanitizedData = {
+        nama_class: nama_class.trim(),
+        deskripsi: deskripsi ? deskripsi.trim() : null,
+        hari: hari.trim(),
+        teacher: teacher.trim(),
+        time: time.trim()
+      };
+
+      const [result] = await pool.execute(
+        `INSERT INTO class (
+          nama_class, 
+          deskripsi, 
+          hari, 
+          teacher, 
+          time, 
+          created_at
+        ) VALUES (?, ?, ?, ?, ?, NOW())`,
+        [
+          sanitizedData.nama_class,
+          sanitizedData.deskripsi,
+          sanitizedData.hari,
+          sanitizedData.teacher,
+          sanitizedData.time
+        ]
+      );
 
       res.status(201).json({
         message: "Class created successfully",
         id: result.insertId,
+        data: sanitizedData
       });
     } catch (error) {
       console.error("Error creating class:", error);
+      
+      // Handle specific database errors
+      if (error.code === 'ER_DUP_ENTRY') {
+        return res.status(409).json({
+          message: "Class with this name already exists",
+          error: error.message
+        });
+      }
+
       res.status(500).json({
         message: "Failed to create class",
-        error: error.message,
+        error: error.message
       });
     }
   }
