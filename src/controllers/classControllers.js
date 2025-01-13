@@ -6,11 +6,11 @@ class ClassController {
     try {
       // Destructure with default values
       const {
-        nama_class = null,
-        deskripsi = null,
-        hari = null,
-        teacher = null,
-        time = null,
+        nama_class = "Ardi",
+        deskripsi = "Ardi",
+        hari = "Senin",
+        teacher = "Ardi",
+        time = "10:00:00",
       } = req.body;
 
       // Validasi field yang required
