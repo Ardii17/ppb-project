@@ -13,82 +13,23 @@ class ClassController {
         time = "10:00:00",
       } = req.body;
 
-      // Validasi field yang required
-      if (!nama_class || !hari || !teacher || !time) {
-        return res.status(400).json({
-          message: "Missing required fields",
-          required: ["nama_class", "hari", "teacher", "time"],
-        });
-      }
-
-      // Log untuk debugging
-      console.log("Request body:", {
-        nama_class,
-        deskripsi,
-        hari,
-        teacher,
-        time,
-      });
-
       const [result] = await pool.execute(
-        `INSERT INTO class (
-          nama_class, 
-          deskripsi, 
-          hari, 
-          teacher, 
-          time, 
-          created_at
-        ) VALUES (?, ?, ?, ?, ?, NOW())`,
-        [
-          nama_class || null, // Convert empty string to null
-          deskripsi || null, // Convert empty string to null
-          hari || null, // Convert empty string to null
-          teacher || null, // Convert empty string to null
-          time || null, // Convert empty string to null
-        ]
+        "INSERT INTO class (nama_class, deskripsi, hari, teacher, time, created_at) VALUES (?, ?, ?, ?, ?, NOW())",
+        [nama_class, deskripsi, hari, teacher, time]
       );
 
       res.status(201).json({
         message: "Class created successfully",
         id: result.insertId,
-        data: {
-          nama_class,
-          deskripsi,
-          hari,
-          teacher,
-          time,
-        },
       });
     } catch (error) {
       console.error("Error creating class:", error);
-      console.error("Request body:", req.body); // Tambahan log untuk debugging
       res.status(500).json({
         message: "Failed to create class",
         error: error.message,
       });
     }
   }
-  // async createClass(req, res) {
-  //   try {
-  //     const { nama_class, deskripsi, hari, teacher, time } = req.body;
-
-  //     const [result] = await pool.execute(
-  //       "INSERT INTO class (nama_class, deskripsi, hari, teacher, time, created_at) VALUES (?, ?, ?, ?, ?, NOW())",
-  //       [nama_class, deskripsi, hari, teacher, time]
-  //     );
-
-  //     res.status(201).json({
-  //       message: "Class created successfully",
-  //       id: result.insertId,
-  //     });
-  //   } catch (error) {
-  //     console.error("Error creating class:", error);
-  //     res.status(500).json({
-  //       message: "Failed to create class",
-  //       error: error.message,
-  //     });
-  //   }
-  // }
 
   // Get all classes
   async getAllClasses(req, res) {
