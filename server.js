@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use("/api", classRoutes);
-app.use("/api/assignments", assignmentRoutes);
+app.use("/api", assignmentRoutes);
 app.use("/api/materi", materiRoutes);
 
 app.listen(PORT, () => {
