@@ -1,58 +1,78 @@
 const pool = require("../config/database");
-const ResponseHandler = require("../utils/responseHandler");
 
 class AssignmentController {
-  // Bulk Insert
-  static async createAssignments(req, res) {
-    const connection = await pool.getConnection();
+  static async readAssignments(req, res) {
     try {
-      await connection.beginTransaction();
+      const query = "SELECT * FROM task";
 
-      const assignments = req.body;
-      const results = [];
-
-      for (const assignment of assignments) {
-        const { class_id, judul, deskripsi, deadline } = assignment;
-        const [result] = await connection.query(
-          "INSERT INTO assignment (class_id, judul, deskripsi, deadline) VALUES (?, ?, ?, ?)",
-          [class_id, judul, deskripsi, deadline]
-        );
-        results.push(result.insertId);
-      }
-
-      await connection.commit();
-      ResponseHandler.success(
-        res,
-        { ids: results },
-        "Assignments berhasil dibuat",
-        201
-      );
+      const [rows] = await pool.query(query);
+      res.status(200).json(rows);
     } catch (error) {
-      await connection.rollback();
-      ResponseHandler.error(res, error.message);
-    } finally {
-      connection.release();
+      res.status(500).json({
+        message: error.message,
+      });
     }
   }
 
-  // Kompleks Query dengan Join
-  static async getAssignmentsByClass(req, res) {
+  static async createAssignments(req, res) {
     try {
-      const { class_id } = req.params;
-      const [assignments] = await pool.query(
-        `
-        SELECT a.*, c.nama_class 
-        FROM assignment a
-        JOIN class c ON a.class_id = c.id
-        WHERE a.class_id = ? 
-        ORDER BY a.deadline
-      `,
-        [class_id]
-      );
+      const { judul, deskripsi } = req.body;
 
-      ResponseHandler.success(res, assignments);
+      const query =
+        "INSERT INTO task (judul, deskripsi, deadline, status, created_at) VALUES (?, ?, ?, false, NOW())";
+
+      const [result] = await pool.execute(query, [judul, deskripsi, deadline]);
+      res.status(200).json({
+        message: "Assignment created successfully",
+        id: result.insertId,
+      });
     } catch (error) {
-      ResponseHandler.error(res, error.message);
+      res.status(500).json({
+        message: error.message,
+      });
+    }
+  }
+
+  static async updateAssignments(req, res) {
+    try {
+      const { id } = req.params;
+      const { judul, deskripsi, deadline, status } = req.body;
+      const query =
+        "UPDATE task SET judul = ?, deskripsi = ?, deadline = ?, status = ? WHERE id = ?";
+
+      const [result] = await pool.execute(query, [
+        judul,
+        deskripsi,
+        deadline,
+        status,
+        id,
+      ]);
+
+      res.status(200).json({
+        message: "Assignment updated successfully",
+        id: result.insertId,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: error.message,
+      });
+    }
+  }
+
+  static async deleteAssignments(req, res) {
+    try {
+      const { id } = req.params;
+      const query = "DELETE FROM task WHERE id = ?";
+
+      const [result] = await pool.execute(query, [id]);
+      res.status(200).json({
+        message: "Assignment deleted successfully",
+        id: result.insertId,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: error.message,
+      });
     }
   }
 }
