@@ -16,12 +16,12 @@ class AssignmentController {
 
   static async createAssignments(req, res) {
     try {
-      const { judul, deskripsi, deadline } = req.body;
+      const { judul, deskripsi, deadline, status } = req.body;
 
       const query =
-        "INSERT INTO task (judul, deskripsi, deadline, status, created_at) VALUES (?, ?, ?, false, NOW())";
+        "INSERT INTO task (judul, deskripsi, deadline, status, created_at) VALUES (?, ?, ?, ?, NOW())";
 
-      const [result] = await pool.execute(query, [judul, deskripsi, deadline]);
+      const [result] = await pool.execute(query, [judul, deskripsi, deadline, status]);
       res.status(200).json({
         message: "Assignment created successfully",
         id: result.insertId,
