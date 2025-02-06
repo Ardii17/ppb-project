@@ -16,7 +16,7 @@ class AssignmentController {
 
   static async createAssignments(req, res) {
     try {
-      const { judul, deskripsi } = req.body;
+      const { judul, deskripsi, deadline } = req.body;
 
       const query =
         "INSERT INTO task (judul, deskripsi, deadline, status, created_at) VALUES (?, ?, ?, false, NOW())";
